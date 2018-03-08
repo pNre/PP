@@ -1,0 +1,169 @@
+@import url(http://fonts.googleapis.com/css?family=Josefin+Sans:300);
+@import url(http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.2/styles/default.min.css);
+
+@highdensity: ~"only screen and (-webkit-min-device-pixel-ratio: 1.5)",
+              ~"only screen and (min--moz-device-pixel-ratio: 1.5)",
+              ~"only screen and (-o-min-device-pixel-ratio: 3/2)",
+              ~"only screen and (min-device-pixel-ratio: 1.5)";
+@mobile:      ~"only screen and (max-width: 529px)";
+@tablet:      ~"only screen and (min-width: 530px) and (max-width: 949px)";
+@desktop:     ~"only screen and (min-width: 950px) and (max-width: 1128px)";
+@desktop-xl:  ~"only screen and (min-width: 1129px)";
+
+@mobile-factor: 0.8;
+
+@title-font-family: 'Josefin Sans', sans-serif;
+@title-font-size: 48px;
+@title-padding: 10px;
+
+@body-font-family: "HelveticaNeue", "Helvetica Neue", "HelveticaNeueRoman", "HelveticaNeue-Roman", "Helvetica Neue Roman", 'TeXGyreHerosRegular', "Helvetica", "Tahoma", "Geneva", "Arial", sans-serif;
+@body-font-size: 14px;
+
+@date-font-family: @body-font-family;
+@date-font-size: 14px;
+
+@contents-padding: 10px;
+
+@nav-height: 33px;
+@nav-font-size: 14px;
+
+@code-font-family: Consolas, Menlo, Courier, monospace;
+@code-font-size: 14px;
+
+.main-block-element {
+    width: 50%;
+    padding-left: 25%;
+}
+
+body {
+    margin: 0;
+
+    @media @desktop, @desktop-xl, @tablet {
+        font-size: @body-font-size;
+    }
+
+    @media @mobile {
+        font-size: @body-font-size * @mobile-factor;
+    }
+
+    font-family: @date-font-family;
+}
+
+div.title {
+    text-align: center;
+
+    @media @desktop, @desktop-xl, @tablet {
+        font-size: @title-font-size;
+    }
+
+    @media @mobile {
+        font-size: @title-font-size * @mobile-factor;
+    }
+
+    font-family: @title-font-family;
+    font-weight: 200;
+
+    .main-block-element;
+
+    padding-top: @title-padding;
+    padding-bottom: @title-padding;
+
+    & > div.date {
+        font-family: @date-font-family;
+
+        @media @desktop, @desktop-xl, @tablet {
+            font-size: @date-font-size;
+        }
+
+        @media @mobile {
+            font-size: @date-font-size * @mobile-factor;
+        }
+
+        padding-top: @title-padding;
+    }
+
+    & > a:hover {
+        text-decoration: none;
+    }
+}
+
+div.contents {
+    .main-block-element;
+
+    padding-top: @contents-padding;
+
+    line-height: 1.4;
+}
+
+div.navigation {
+    margin-top: 0;
+    margin-left: 0;
+
+    margin-bottom: @nav-height;
+
+    height: @nav-height;
+    line-height: @nav-height;
+
+    padding-left: 10px;
+    padding-right: 10px;
+
+    background: rgb(249, 249, 249);
+
+    @media @desktop, @desktop-xl, @tablet {
+        font-size: @nav-font-size;
+    }
+
+    @media @mobile {
+        font-size: @nav-font-size * @mobile-factor;
+    }
+
+    & > a {
+        &:first-child {
+            padding-left: 0;
+        }
+
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    border-bottom: 1px solid #eee;
+}
+
+a {
+    color: #222;
+    text-decoration: none;
+
+    &:hover {
+        color: #000;
+        text-decoration: underline;
+    }
+}
+
+pre {
+    background: rgb(245, 245, 245);
+    padding: 10px;
+
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+
+code {
+    background: rgb(245, 245, 245);
+    font-family: @code-font-family;
+    font-size: @code-font-size;
+    padding: 2.5px;
+}
+
+div.separator {
+
+    height: 30px;
+    width: 100%;
+
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+    background: rgb(249, 249, 249);
+
+}
