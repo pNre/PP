@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <strings.h>
 
 #include "ht.h"
@@ -23,7 +24,7 @@ ht_t *ht_alloc(size_t size) {
     if (!table) {
         return NULL;
     }
-    
+
     table->count = 0;
     table->size = size;
     table->nodes = (ht_node_t **)calloc(size, sizeof(ht_node_t *));
@@ -134,5 +135,3 @@ void ht_free(ht_t *table) {
     free(table);
 
 }
-
-
