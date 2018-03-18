@@ -12,6 +12,7 @@
 #include "articles.h"
 #include "config.h"
 #include "template.h"
+#include "resources/css.h"
 
 #define DEFAULT_PORT 8080
 
@@ -85,6 +86,17 @@ void article_cb(evhtp_request_t *request, void *arg) {
 
 }
 
+void css_cb(evhtp_request_t *request, void *arg) {
+
+    evbuffer_add(request->buffer_out, resources_main_css, resources_main_css_len);
+
+    evhtp_header_t *content_type = evhtp_header_new("Content-Type", "text/css; charset=utf-8", 1, 1);
+    evhtp_headers_add_header(request->headers_out, content_type);
+
+    evhtp_send_reply(request, EVHTP_RES_OK);
+
+}
+
 int parse_opts(ev_uint16_t *port, int argc, char ** argv) {
 
     unsigned long port_arg = 0;
@@ -155,8 +167,10 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    //  article callback
+    //  articles
     evhtp_set_glob_cb(htp, "/a/*", article_cb, NULL);
+    //  css
+    evhtp_set_cb(htp, "/style.css", css_cb, NULL);
     //  generic callback
     evhtp_set_gencb(htp, index_cb, NULL);
     //  set max threads to use

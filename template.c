@@ -6,7 +6,6 @@
 #include <event2/buffer.h>
 
 #include "articles.h"
-#include "resources/css.h"
 #include "support/ht.h"
 
 void evbuffer_add_page_header(struct evbuffer *buffer, ht_t *config) {
@@ -28,14 +27,14 @@ void evbuffer_add_page_header(struct evbuffer *buffer, ht_t *config) {
             "  <meta charset=\"utf-8\">\n"
             "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
             "  <title>%s</title>\n"
-            "  <style>%s</style>\n"
+            "  <link href=\"/style.css\" rel=\"stylesheet\" type=\"text/css\"/>\n"
             " </head>\n"
             " <body>\n"
             "  <div class=\"navigation\">\n"
             "   <a href=\"/\">index</a>\n"
             "   <a href=\"mailto:%s\">mail</a>\n"
             "  </div>\n",
-            title, resources_main_css, email);
+            title, email);
 
 }
 
