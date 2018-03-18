@@ -1,4 +1,4 @@
-## A tiny publishing platform in C
+# A tiny publishing platform in C
 
 ### Dependencies
 * libevhtp
