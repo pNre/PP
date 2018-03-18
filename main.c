@@ -166,7 +166,7 @@ int main(int argc, char **argv) {
     evhtp_set_max_keepalive_requests(htp, 1);
 
     //  listen
-    evhtp_bind_socket(htp, "127.0.0.1", port, 1024);
+    evhtp_bind_socket(htp, "0.0.0.0", port, 1024);
     printf("Listening on port %d\n", port);
 
     event_base_loop(base, 0);
