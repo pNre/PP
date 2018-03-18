@@ -11,8 +11,15 @@
 
 void evbuffer_add_page_header(struct evbuffer *buffer, ht_t *config) {
 
-    char *title = ht_find(config, "title") ?: "";
-    char *email = ht_find(config, "email") ?: "";
+    char *title, *email;
+
+    if (config != NULL) {
+        title = ht_find(config, "title") ?: "";
+        email = ht_find(config, "email") ?: "";
+    } else {
+        title = "";
+        email = "";
+    }
 
     evbuffer_add_printf(buffer,
             "<!DOCTYPE html>\n"
