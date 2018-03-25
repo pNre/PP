@@ -6,9 +6,9 @@ run:
 	./main.out
 
 main:
-	lessc resources/main.less resources/main.css
+	lessc -x resources/main.less resources/main.css
 	xxd -i resources/main.css resources/css.h
-	clang main.c template.c articles.c config.c support/io.c support/ht.c $(LIBS) -o main.out
+	clang main.c template.c articles.c config.c support/io.c support/ht.c support/html.c $(LIBS) -o main.out
 
 clean:
 	-rm main.out

@@ -2,3 +2,4 @@ main.out
 resources/*.css
 resources/css.h
 resources/articles/*
+resources/config.txt

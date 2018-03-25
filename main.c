@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -83,6 +82,64 @@ void article_cb(evhtp_request_t *request, void *arg) {
     evhtp_send_reply(request, EVHTP_RES_OK);
 
     pthread_mutex_unlock(&articles_lock);
+
+}
+
+void atom_feed_cb(evhtp_request_t *request, void *args) {
+
+    char *title, *base_url;
+    if (config != NULL) {
+        title = ht_find(config, "title") ?: "";
+        base_url = ht_find(config, "baseurl") ?: "";
+    } else {
+        title = "";
+        base_url = "";
+    }
+
+    size_t articles_count = 0, index;
+    char formatted_date[64];
+
+    evbuffer_add_printf(request->buffer_out, 
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
+            "<feed xmlns=\"http://www.w3.org/2005/Atom\">\n"
+            "<title>%s</title>\n"
+            "<id>%s</id>\n"
+            "<link rel=\"self\" href=\"%satom.feed\" />\n", title, base_url, base_url);
+
+    pthread_mutex_lock(&articles_lock);
+    article_t **articles_list = (article_t **)ht_sorted_values(articles, articles_compare, &articles_count);
+
+    for (index = 0; index < articles_count; index++) {
+        time_t timestamp = articles_list[index]->timestamp;
+        strftime(formatted_date, sizeof(formatted_date) - 1, "%FT%TZ", localtime(&timestamp));
+
+        if (index == 0) {
+           evbuffer_add_printf(request->buffer_out, "<updated>%s</updated>\n", formatted_date);    
+        }
+
+        evbuffer_add_printf(request->buffer_out, "<entry>\n");
+        evbuffer_add_printf(request->buffer_out, "<title>%s</title>\n", articles_list[index]->title);
+        evbuffer_add_printf(request->buffer_out, "<link href=\"/a/%s\" />\n", articles_list[index]->name);
+        evbuffer_add_printf(request->buffer_out, "<id>%s%s</id>\n", base_url, articles_list[index]->name);
+        evbuffer_add_printf(request->buffer_out, "<updated>%s</updated>\n", formatted_date);
+
+        if (articles_list[index]->summary) {
+            evbuffer_add_printf(request->buffer_out, "<summary>%s</summary>\n", articles_list[index]->summary);
+        }
+
+        evbuffer_add_printf(request->buffer_out, "</entry>\n");
+
+    }
+
+    free(articles_list);
+    pthread_mutex_unlock(&articles_lock); 
+
+    evbuffer_add_printf(request->buffer_out, "</feed>");
+
+    evhtp_header_t *content_type = evhtp_header_new("Content-Type", "application/atom+xml; charset=utf-8", 1, 1);
+    evhtp_headers_add_header(request->headers_out, content_type);
+
+    evhtp_send_reply(request, EVHTP_RES_OK);
 
 }
 
@@ -169,6 +226,8 @@ int main(int argc, char **argv) {
 
     //  articles
     evhtp_set_glob_cb(htp, "/a/*", article_cb, NULL);
+    //  atom feed
+    evhtp_set_cb(htp, "/atom.feed", atom_feed_cb, NULL);
     //  css
     evhtp_set_cb(htp, "/style.css", css_cb, NULL);
     //  generic callback

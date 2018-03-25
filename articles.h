@@ -9,6 +9,7 @@ typedef struct article {
     char *name;
     char *title;
     char *contents;
+    char *summary;
     time_t timestamp;
 } article_t;
 

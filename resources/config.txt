@@ -1,2 +1,0 @@
-title=π
-email=mail@pierluigi.me

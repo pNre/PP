@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-
+#include <ctype.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <dirent.h>
@@ -9,6 +9,7 @@
 #include <evhtp.h>
 
 #include "articles.h"
+#include "support/html.h"
 #include "support/io.h"
 
 void article_free(void *data) {
@@ -25,6 +26,10 @@ void article_free(void *data) {
 
     if (article->contents) {
         free(article->contents);
+    }
+
+    if (article->summary) {
+        free(article->summary);
     }
 
     free(article);
@@ -98,6 +103,26 @@ struct article *article_parse(char *pathname) {
     art->contents = contents ? strdup(contents) : NULL;
 
     free(data);
+
+    //  the the first sentence of the article and make it the summary
+    char *stripped = html_strip_tags(art->contents);
+    if (stripped) {
+        char *stop = strchr(stripped, '.');
+        if (stop) {
+            *stop = 0;
+        }
+
+        char *trimmed = stripped;
+        while (isspace(*trimmed)) {
+            trimmed++;
+        }
+
+        art->summary = strdup(trimmed);
+
+        free(stripped);
+    } else {
+        art->summary = NULL;
+    }
 
     return art;
 
