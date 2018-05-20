@@ -46,20 +46,24 @@ void evbuffer_add_page_footer(struct evbuffer *buffer) {
 
 }
 
-void evbuffer_add_article(struct evbuffer *buffer, article_t *article) {
+void evbuffer_add_article(struct evbuffer *buffer, article_t *article, int include_contents) {
 
     char formatted_date[64];
     time_t timestamp = article->timestamp;
 
     strftime(formatted_date, sizeof(formatted_date) - 1, "%A %e %Y, %H:%M", localtime(&timestamp));
 
-    evbuffer_add_printf(buffer,
-            "<div class=\"title\">\n"
-            " <a href=\"/a/%s\">%s</a>\n"
-            " <div class=\"date\">%s</div>\n"
-            "</div>\n"
-            "<div class=\"contents\">%s</div>\n",
-            article->name, article->title, formatted_date, article->contents);
+    evbuffer_add_printf(
+        buffer,
+        "<div class=\"title\">\n"
+        " <a href=\"/a/%s\">%s</a>\n"
+        " <div class=\"date\">%s</div>\n"
+        "</div>\n",
+        article->name, article->title, formatted_date);
+
+    if (include_contents) {
+        evbuffer_add_printf(buffer, "<div class=\"contents\">%s</div>\n", article->contents);
+    }
 
 }
 

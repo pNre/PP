@@ -30,10 +30,8 @@ void index_cb(evhtp_request_t *request, void *arg) {
 
     size_t index;
     for (index = 0; index < articles_count; index++) {
-        evbuffer_add_article(request->buffer_out, articles_list[index]);
-        if (index < articles_count - 1) {
-            evbuffer_add_separator(request->buffer_out);
-        }
+        evbuffer_add_article(request->buffer_out, articles_list[index], index == 0);
+        evbuffer_add_separator(request->buffer_out);
     }
 
     evbuffer_add_page_footer(request->buffer_out);
@@ -73,7 +71,7 @@ void article_cb(evhtp_request_t *request, void *arg) {
     }
 
     evbuffer_add_page_header(request->buffer_out, config);
-    evbuffer_add_article(request->buffer_out, article);
+    evbuffer_add_article(request->buffer_out, article, 1);
     evbuffer_add_page_footer(request->buffer_out);
 
     evhtp_header_t *content_type = evhtp_header_new("Content-Type", "text/html; charset=utf-8", 1, 1);
