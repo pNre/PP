@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include "html.h"
 
 char *html_strip_tags(char *buffer) {
     char *stripped = strdup(buffer);

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 char *read_file(char *pathname) {
-
     FILE *f;
     char *buff;
     long size;
@@ -36,6 +35,5 @@ char *read_file(char *pathname) {
     fclose(f);
 
     return buff;
-
 }
 

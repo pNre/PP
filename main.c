@@ -5,7 +5,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <signal.h>
-
 #include <evhtp.h>
 
 #include "articles.h"
@@ -72,6 +71,7 @@ void article_cb(evhtp_request_t *request, void *arg) {
 
     evbuffer_add_page_header(request->buffer_out, config);
     evbuffer_add_article(request->buffer_out, article, 1);
+    evbuffer_add_separator(request->buffer_out);
     evbuffer_add_page_footer(request->buffer_out);
 
     evhtp_header_t *content_type = evhtp_header_new("Content-Type", "text/html; charset=utf-8", 1, 1);
@@ -85,14 +85,8 @@ void article_cb(evhtp_request_t *request, void *arg) {
 
 void atom_feed_cb(evhtp_request_t *request, void *args) {
 
-    char *title, *base_url;
-    if (config != NULL) {
-        title = ht_find(config, "title") ?: "";
-        base_url = ht_find(config, "baseurl") ?: "";
-    } else {
-        title = "";
-        base_url = "";
-    }
+    char *title = ht_find_s(config, "title", "");
+    char *base_url = ht_find_s(config, "baseurl", "");
 
     size_t articles_count = 0, index;
     char formatted_date[64];
@@ -209,7 +203,6 @@ int main(int argc, char **argv) {
     //  load config (if present)
     config = read_config("resources/config.txt");
 
-    //
     base = event_base_new();
     if (!base) {
         fprintf(stderr, "event_base\n");

@@ -10,15 +10,8 @@
 
 void evbuffer_add_page_header(struct evbuffer *buffer, ht_t *config) {
 
-    char *title, *email;
-
-    if (config != NULL) {
-        title = ht_find(config, "title") ?: "";
-        email = ht_find(config, "email") ?: "";
-    } else {
-        title = "";
-        email = "";
-    }
+    char *title = ht_find_s(config, "title", "");
+    char *email = ht_find_s(config, "email", "");
 
     evbuffer_add_printf(buffer,
             "<!DOCTYPE html>\n"
@@ -43,7 +36,7 @@ void evbuffer_add_page_footer(struct evbuffer *buffer) {
     evbuffer_add_printf(buffer,
             " </body>\n"
             "<html>");
-
+    
 }
 
 void evbuffer_add_article(struct evbuffer *buffer, article_t *article, int include_contents) {
@@ -68,7 +61,5 @@ void evbuffer_add_article(struct evbuffer *buffer, article_t *article, int inclu
 }
 
 void evbuffer_add_separator(struct evbuffer *buffer) {
-
     evbuffer_add_printf(buffer, "<div class=\"separator\"></div>");
-
 }
