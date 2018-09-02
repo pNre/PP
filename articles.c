@@ -155,7 +155,7 @@ void articles_load(char *path, ht_t *table) {
 
         struct article *art = article_parse(filename);
         if (art) {
-            fprintf(stderr, "loaded %s\n", art->name);
+            printf("(Loaded) %s\n", art->name);
             ht_insert(table, art->name, art, article_free);
         }
 

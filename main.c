@@ -9,14 +9,29 @@
 
 #include "articles.h"
 #include "config.h"
+#include "support/fs.h"
 #include "template.h"
 #include "resources/css.h"
 
 #define DEFAULT_PORT 8080
 
-ht_t *articles;
-ht_t *config;
+ht_t *articles = NULL;
+ht_t *config = NULL;
 pthread_mutex_t articles_lock;
+
+static void reload_articles() {
+
+    printf("Reloading articles\n");
+
+    pthread_mutex_lock(&articles_lock);
+    if (articles) {
+        ht_free(articles);
+    }
+    articles = ht_alloc(32);
+    articles_load("resources/articles", articles);
+    pthread_mutex_unlock(&articles_lock);
+
+}
 
 void index_cb(evhtp_request_t *request, void *arg) {
 
@@ -194,12 +209,6 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    //  load the articles
-    pthread_mutex_lock(&articles_lock);
-    articles = ht_alloc(32);
-    articles_load("resources/articles", articles);
-    pthread_mutex_unlock(&articles_lock);
-
     //  load config (if present)
     config = read_config("resources/config.txt");
 
@@ -214,6 +223,9 @@ int main(int argc, char **argv) {
         fprintf(stderr, "evhtp\n");
         return EXIT_FAILURE;
     }
+
+    //  watch for changes in resources/articles
+    watching_ctx_t * watching_ctx = watch("resources/articles", base, reload_articles);
 
     //  articles
     evhtp_set_glob_cb(htp, "/a/*", article_cb, NULL);
@@ -234,6 +246,10 @@ int main(int argc, char **argv) {
     printf("Listening on port %d\n", port);
 
     event_base_loop(base, 0);
+
+    if (watching_ctx) {
+        watching_ctx_free(watching_ctx);
+    }
 
     evhtp_unbind_socket(htp);
     event_base_free(base);
