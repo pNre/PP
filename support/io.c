@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char *read_file(char *pathname) {
+char *read_file(char *pathname, long *length) {
     FILE *f;
     char *buff;
     long size;
@@ -33,6 +33,10 @@ char *read_file(char *pathname) {
     }
 
     fclose(f);
+        
+    if (length) {
+        *length = size;
+     }
 
     return buff;
 }

@@ -5,9 +5,8 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <libgen.h>
-
 #include <evhtp.h>
-
+#include <time.h>
 #include "articles.h"
 #include "support/html.h"
 #include "support/io.h"
@@ -53,14 +52,15 @@ int articles_compare(const void *lhs, const void *rhs) {
 
 struct article *article_parse(char *pathname) {
 
-    char *data;
+    char *data, *data_ptr;
+    long data_length = 0;
     char *date;
     char *title;
-    char *contents;
     struct article *art;
     struct tm tm = {0};
 
-    data = read_file(pathname);
+    data = read_file(pathname, &data_length);
+    data_ptr = data;
     if (!data) {
         return NULL;
     }
@@ -73,12 +73,6 @@ struct article *article_parse(char *pathname) {
 
     bzero(art, sizeof(struct article));
 
-    date = strtok(data, "\n");
-    if (!date) {
-        free(data);
-        return NULL;
-    }
-
     //  use the filename as name
     char *temp_pathname = strdup(pathname);
     if (temp_pathname) {
@@ -90,19 +84,40 @@ struct article *article_parse(char *pathname) {
         free(temp_pathname);
     }
 
+    size_t offset = strcspn(data_ptr, "\n");
+    date = strndup(data_ptr, offset);
+    data_ptr += offset + 1;
+    if (!date) {
+        free(data);
+        return NULL;
+    }
+
     //  line 1: article date
     strptime(date, "%d/%m/%Y %H:%M", &tm);
     art->timestamp = mktime(&tm);
 
     //  line 2: article title
-    title = strtok(NULL, "\n");
-	art->title = title ? strdup(title) : NULL;
+    if ((data_ptr - data) < data_length) {
+        offset = strcspn(data_ptr, "\n");
+	    art->title = strndup(data_ptr, offset);
+        data_ptr += offset + 1;
+    } else {
+        art->title = NULL;
+    }
 
     //  line 3: article contents
-    contents = strtok(NULL, "\0");
-    art->contents = contents ? strdup(contents) : NULL;
+    if (offset < data_length) {
+	    art->contents = strndup(data_ptr, data_length - offset);
+    } else {
+        art->contents = NULL;
+    }
 
     free(data);
+
+    if (!art->contents) {
+        article_free(art);
+        return NULL;
+    }
 
     //  the the first sentence of the article and make it the summary
     char *stripped = html_strip_tags(art->contents);

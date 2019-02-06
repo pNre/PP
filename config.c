@@ -6,7 +6,7 @@
 
 ht_t *read_config(char *filename) {
 
-    char *config = read_file(filename);
+    char *config = read_file(filename, NULL);
     if (!config) {
         return NULL;
     }
