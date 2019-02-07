@@ -20,7 +20,7 @@ char *read_file(char *pathname, long *length) {
         return NULL;
     }
 
-    buff = malloc(size);
+    buff = malloc(size + 1);
     if (!buff) {
         fclose(f);
         return NULL;
@@ -38,6 +38,7 @@ char *read_file(char *pathname, long *length) {
         *length = size;
      }
 
+    buff[size] = 0;
     return buff;
 }
 
