@@ -1,7 +1,7 @@
 #ifndef TEMPLATE_H
 #define TEMPLATE_H
 
-#include <evhtp.h>
+#include <evhtp/evhtp.h>
 
 typedef struct article article_t;
 typedef struct ht_s ht_t;

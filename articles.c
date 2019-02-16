@@ -5,7 +5,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <libgen.h>
-#include <evhtp.h>
+#include <evhtp/evhtp.h>
 #include <time.h>
 #include "articles.h"
 #include "support/html.h"

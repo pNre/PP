@@ -5,8 +5,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <signal.h>
-#include <evhtp.h>
-
+#include <evhtp/evhtp.h>
 #include "articles.h"
 #include "config.h"
 #include "support/fs.h"
@@ -20,9 +19,7 @@ ht_t *config = NULL;
 pthread_mutex_t articles_lock;
 
 static void reload_articles() {
-
     printf("Reloading articles\n");
-
     pthread_mutex_lock(&articles_lock);
     if (articles) {
         ht_free(articles);
@@ -30,11 +27,9 @@ static void reload_articles() {
     articles = ht_alloc(32);
     articles_load("resources/articles", articles);
     pthread_mutex_unlock(&articles_lock);
-
 }
 
-void index_cb(evhtp_request_t *request, void *arg) {
-
+void index_cb(evhtp_request_t *request, __unused void *arg) {
     pthread_mutex_lock(&articles_lock);
 
     size_t articles_count = 0;
@@ -54,25 +49,19 @@ void index_cb(evhtp_request_t *request, void *arg) {
 
     evhtp_header_t *content_type = evhtp_header_new("Content-Type", "text/html; charset=utf-8", 1, 1);
     evhtp_headers_add_header(request->headers_out, content_type);
-
     evhtp_send_reply(request, EVHTP_RES_OK);
 
     pthread_mutex_unlock(&articles_lock);
-
 }
 
 void redirect_to_index(evhtp_request_t *request) {
-
     evhtp_header_t *location = evhtp_header_new("Location", "/", 1, 1);
     evhtp_headers_add_header(request->headers_out, location);
     evhtp_send_reply(request, EVHTP_RES_MOVEDPERM);
-
 }
 
-void article_cb(evhtp_request_t *request, void *arg) {
-
+void article_cb(evhtp_request_t *request, __unused void *arg) {
     char *file = request->uri->path->file;
-
     if (!file) {
         return redirect_to_index(request);
     }
@@ -91,15 +80,12 @@ void article_cb(evhtp_request_t *request, void *arg) {
 
     evhtp_header_t *content_type = evhtp_header_new("Content-Type", "text/html; charset=utf-8", 1, 1);
     evhtp_headers_add_header(request->headers_out, content_type);
-
     evhtp_send_reply(request, EVHTP_RES_OK);
 
     pthread_mutex_unlock(&articles_lock);
-
 }
 
-void atom_feed_cb(evhtp_request_t *request, void *args) {
-
+void atom_feed_cb(evhtp_request_t *request, __unused void *args) {
     char *title = ht_find_s(config, "title", "");
     char *base_url = ht_find_s(config, "baseurl", "");
 
@@ -142,29 +128,20 @@ void atom_feed_cb(evhtp_request_t *request, void *args) {
     pthread_mutex_unlock(&articles_lock); 
 
     evbuffer_add_printf(request->buffer_out, "</feed>");
-
     evhtp_header_t *content_type = evhtp_header_new("Content-Type", "application/atom+xml; charset=utf-8", 1, 1);
     evhtp_headers_add_header(request->headers_out, content_type);
-
     evhtp_send_reply(request, EVHTP_RES_OK);
-
 }
 
-void css_cb(evhtp_request_t *request, void *arg) {
-
+void css_cb(evhtp_request_t *request, __unused void *arg) {
     evbuffer_add(request->buffer_out, resources_main_css, resources_main_css_len);
-
     evhtp_header_t *content_type = evhtp_header_new("Content-Type", "text/css; charset=utf-8", 1, 1);
     evhtp_headers_add_header(request->headers_out, content_type);
-
     evhtp_send_reply(request, EVHTP_RES_OK);
-
 }
 
 int parse_opts(ev_uint16_t *port, int argc, char ** argv) {
-
     unsigned long port_arg = 0;
-
     int arg;
 
     while ((arg = getopt(argc, argv, "p:")) != -1) {
@@ -184,14 +161,9 @@ int parse_opts(ev_uint16_t *port, int argc, char ** argv) {
     }
 
     return 1;
-
-}
-
-void init_thread(evhtp_t *htp, evthr_t *thread, void *arg) {
 }
 
 int main(int argc, char **argv) {
-
     evhtp_t *htp;
     evbase_t *base;
 
@@ -237,7 +209,7 @@ int main(int argc, char **argv) {
     evhtp_set_gencb(htp, index_cb, NULL);
     //  set max threads to use
     int threads = (int)sysconf(_SC_NPROCESSORS_CONF);
-    evhtp_use_threads(htp, init_thread, threads, NULL);
+    evhtp_use_threads_wexit(htp, NULL, NULL, threads, NULL);
     //  max requests per connection
     evhtp_set_max_keepalive_requests(htp, 1);
 
@@ -255,5 +227,4 @@ int main(int argc, char **argv) {
     event_base_free(base);
 
     return EXIT_SUCCESS;
-
 }

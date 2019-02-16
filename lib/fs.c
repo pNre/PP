@@ -3,11 +3,10 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <evhtp.h>
+#include <evhtp/evhtp.h>
 #if __linux__
 #include <sys/inotify.h>
 #endif
-
 #include "fs.h"
 
 #define INOTIFY_MASK (IN_MODIFY | IN_MOVE)
@@ -33,7 +32,7 @@ static void inotify_on_event(struct bufferevent* event, void* context) {
 }
 #endif
 
-watching_ctx_t *watch(char *path, evbase_t *evbase, void(*callback)(void)) {
+watching_ctx_t *watch(__unused char *path, __unused evbase_t *evbase, void(*callback)(void)) {
     #if __linux__
     watching_ctx_t *ctx;
 
