@@ -32,7 +32,7 @@ static void inotify_on_event(struct bufferevent* event, void* context) {
 }
 #endif
 
-watching_ctx_t *watch(__unused char *path, __unused evbase_t *evbase, void(*callback)(void)) {
+watching_ctx_t *watch(char *path, evbase_t *evbase, void(*callback)(void)) {
     #if __linux__
     watching_ctx_t *ctx;
 

@@ -30,7 +30,7 @@ static void reload_articles() {
     pthread_mutex_unlock(&articles_lock);
 }
 
-void index_cb(evhtp_request_t *request, __unused void *arg) {
+void index_cb(evhtp_request_t *request, void *arg) {
     pthread_mutex_lock(&articles_lock);
 
     size_t articles_count = 0;
@@ -61,7 +61,7 @@ void redirect_to_index(evhtp_request_t *request) {
     evhtp_send_reply(request, EVHTP_RES_MOVEDPERM);
 }
 
-void article_cb(evhtp_request_t *request, __unused void *arg) {
+void article_cb(evhtp_request_t *request, void *arg) {
     char *file = request->uri->path->file;
     if (!file) {
         return redirect_to_index(request);
@@ -86,7 +86,7 @@ void article_cb(evhtp_request_t *request, __unused void *arg) {
     pthread_mutex_unlock(&articles_lock);
 }
 
-void atom_feed_cb(evhtp_request_t *request, __unused void *args) {
+void atom_feed_cb(evhtp_request_t *request, void *args) {
     size_t articles_count = 0, index;
     char *title = config_string_at(config->value, "conf.title", "");
     char *base_url = config_string_at(config->value, "conf.base-url", "");
@@ -133,7 +133,7 @@ void atom_feed_cb(evhtp_request_t *request, __unused void *args) {
     evhtp_send_reply(request, EVHTP_RES_OK);
 }
 
-void css_cb(evhtp_request_t *request, __unused void *arg) {
+void css_cb(evhtp_request_t *request, void *arg) {
     evbuffer_add(request->buffer_out, resources_main_css, resources_main_css_len);
     evhtp_header_t *content_type = evhtp_header_new("Content-Type", "text/css; charset=utf-8", 1, 1);
     evhtp_headers_add_header(request->headers_out, content_type);
