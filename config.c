@@ -14,7 +14,7 @@ list_t *read_config(char *filename) {
     sexpr_parse_error_t err;
     list_t *exprs = sexpr_from_string(config, &err);
     if (!exprs) {
-        fprintf(stderr, "invalid config file %s near %zu\n", filename, err.pos);
+        fprintf(stderr, "invalid config file %s (%d) near %zu\n", filename, err.type, err.pos);
         free(config);
         return NULL;
     }
