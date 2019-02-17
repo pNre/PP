@@ -9,9 +9,10 @@
 Create a file in `resources/config.txt` following this template:
 
 ```
-title=My articles
-email=my@email.me
-baseurl=https://my.articles.me/
+(conf 
+    (title "My articles")
+    (base-url "https://my.articles.me/")
+    (links (("mail" "my@email.me") ("stuff" "https://somewhere.else")))
 ```
 
 ### Adding articles
