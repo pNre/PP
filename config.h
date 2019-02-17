@@ -1,9 +1,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-typedef struct ht_s ht_t;
+#include <sexpr.h>
 
-ht_t *read_config(char *filename);
+list_t *read_config(char *filename);
+char *config_string_at(sexpr_t *config, char *path, char *fallback);
 
 #endif
 

@@ -1,17 +1,16 @@
 #include <sys/stat.h>
 #include <fcntl.h>
-
 #include <event2/event.h>
 #include <event2/http.h>
 #include <event2/buffer.h>
-
+#include <sexpr.h>
 #include "articles.h"
-#include "support/ht.h"
+#include "config.h"
+#include "lib/ht.h"
 
-void evbuffer_add_page_header(struct evbuffer *buffer, ht_t *config) {
-
-    char *title = ht_find_s(config, "title", "");
-    char *email = ht_find_s(config, "email", "");
+void evbuffer_add_page_header(struct evbuffer *buffer, list_t *config) {
+    char *title = config_string_at(config->value, "conf.title", "");
+    char *email = config_string_at(config->value, "conf.email", "");
 
     evbuffer_add_printf(buffer,
             "<!DOCTYPE html>\n"
@@ -28,19 +27,15 @@ void evbuffer_add_page_header(struct evbuffer *buffer, ht_t *config) {
             "   <a href=\"mailto:%s\">mail</a>\n"
             "  </div>\n",
             title, email);
-
 }
 
 void evbuffer_add_page_footer(struct evbuffer *buffer) {
-
     evbuffer_add_printf(buffer,
             " </body>\n"
             "<html>");
-    
 }
 
 void evbuffer_add_article(struct evbuffer *buffer, article_t *article, int include_contents) {
-
     char formatted_date[64];
     time_t timestamp = article->timestamp;
 
@@ -57,7 +52,6 @@ void evbuffer_add_article(struct evbuffer *buffer, article_t *article, int inclu
     if (include_contents) {
         evbuffer_add_printf(buffer, "<div class=\"contents\">%s</div>\n", article->contents);
     }
-
 }
 
 void evbuffer_add_separator(struct evbuffer *buffer) {

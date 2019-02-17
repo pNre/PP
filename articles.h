@@ -3,7 +3,7 @@
 
 #include <time.h>
 
-#include "support/ht.h"
+#include "lib/ht.h"
 
 typedef struct article {
     char *name;

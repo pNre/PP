@@ -8,11 +8,10 @@
 #include <evhtp/evhtp.h>
 #include <time.h>
 #include "articles.h"
-#include "support/html.h"
-#include "support/io.h"
+#include "lib/html.h"
+#include "lib/io.h"
 
 void article_free(void *data) {
-
     struct article *article = data;
 
     if (article->name) {
@@ -32,11 +31,9 @@ void article_free(void *data) {
     }
 
     free(article);
-
 }
 
 int articles_compare(const void *lhs, const void *rhs) {
-
     time_t lhs_ts = ((struct article **)lhs)[0]->timestamp;
     time_t rhs_ts = ((struct article **)rhs)[0]->timestamp;
 
@@ -47,15 +44,12 @@ int articles_compare(const void *lhs, const void *rhs) {
     } else {
         return 0;
     }
-
 }
 
 struct article *article_parse(char *pathname) {
-
     char *data, *data_ptr;
     long data_length = 0;
     char *date;
-    char *title;
     struct article *art;
     struct tm tm = {0};
 
@@ -99,15 +93,15 @@ struct article *article_parse(char *pathname) {
     //  line 2: article title
     if ((data_ptr - data) < data_length) {
         offset = strcspn(data_ptr, "\n");
-	    art->title = strndup(data_ptr, offset);
+        art->title = strndup(data_ptr, offset);
         data_ptr += offset + 1;
     } else {
         art->title = NULL;
     }
 
     //  line 3: article contents
-    if (offset < data_length) {
-	    art->contents = strndup(data_ptr, data_length - offset);
+    if (offset < (size_t)data_length) {
+        art->contents = strndup(data_ptr, data_length - offset);
     } else {
         art->contents = NULL;
     }
@@ -140,11 +134,9 @@ struct article *article_parse(char *pathname) {
     }
 
     return art;
-
 }
 
 void articles_load(char *path, ht_t *table) {
-
     DIR *dir;
     struct dirent *entry;
 
@@ -179,5 +171,4 @@ void articles_load(char *path, ht_t *table) {
     }
 
     closedir(dir);
-
 }

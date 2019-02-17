@@ -6,16 +6,17 @@
 #include <unistd.h>
 #include <signal.h>
 #include <evhtp/evhtp.h>
+#include <sexpr.h>
 #include "articles.h"
 #include "config.h"
-#include "support/fs.h"
+#include "lib/fs.h"
 #include "template.h"
 #include "resources/css.h"
 
 #define DEFAULT_PORT 8080
 
 ht_t *articles = NULL;
-ht_t *config = NULL;
+list_t *config = NULL;
 pthread_mutex_t articles_lock;
 
 static void reload_articles() {
@@ -86,13 +87,11 @@ void article_cb(evhtp_request_t *request, __unused void *arg) {
 }
 
 void atom_feed_cb(evhtp_request_t *request, __unused void *args) {
-    char *title = ht_find_s(config, "title", "");
-    char *base_url = ht_find_s(config, "baseurl", "");
-
     size_t articles_count = 0, index;
-    char formatted_date[64];
+    char *title = config_string_at(config->value, "conf.title", "");
+    char *base_url = config_string_at(config->value, "conf.base-url", "");
 
-    evbuffer_add_printf(request->buffer_out, 
+    evbuffer_add_printf(request->buffer_out,
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
             "<feed xmlns=\"http://www.w3.org/2005/Atom\">\n"
             "<title>%s</title>\n"
@@ -103,11 +102,12 @@ void atom_feed_cb(evhtp_request_t *request, __unused void *args) {
     article_t **articles_list = (article_t **)ht_sorted_values(articles, articles_compare, &articles_count);
 
     for (index = 0; index < articles_count; index++) {
+        char formatted_date[64];
         time_t timestamp = articles_list[index]->timestamp;
-        strftime(formatted_date, sizeof(formatted_date) - 1, "%FT%TZ", localtime(&timestamp));
+        strftime(formatted_date, sizeof(formatted_date) - 1, "%FT%T%z", localtime(&timestamp));
 
         if (index == 0) {
-           evbuffer_add_printf(request->buffer_out, "<updated>%s</updated>\n", formatted_date);    
+           evbuffer_add_printf(request->buffer_out, "<updated>%s</updated>\n", formatted_date);
         }
 
         evbuffer_add_printf(request->buffer_out, "<entry>\n");
