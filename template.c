@@ -8,25 +8,42 @@
 #include "config.h"
 #include "lib/ht.h"
 
-void evbuffer_add_page_header(struct evbuffer *buffer, list_t *config) {
-    char *title = config_string_at(config->value, "conf.title", "");
-    char *email = config_string_at(config->value, "conf.email", "");
+void evbuffer_add_page_header_links(void *ctx, sexpr_t *link) {
+    struct evbuffer *buffer = ctx;
+    sexpr_t *title_expr = sexpr_list_nth_item(link, 0);
+    sexpr_t *href_expr = sexpr_list_nth_item(link, 1);
+
+    if (!title_expr || !href_expr) {
+        return;
+    }
+
+    if (title_expr->type != SEXPR_TYPE_STRING || href_expr->type != SEXPR_TYPE_STRING) {
+        return;
+    }
 
     evbuffer_add_printf(buffer,
-            "<!DOCTYPE html>\n"
-            "<html>\n"
-            " <head>\n"
-            "  <meta charset=\"utf-8\">\n"
-            "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
-            "  <title>%s</title>\n"
-            "  <link href=\"/style.css\" rel=\"stylesheet\" type=\"text/css\"/>\n"
-            " </head>\n"
-            " <body>\n"
-            "  <div class=\"navigation\">\n"
-            "   <a href=\"/\">index</a>\n"
-            "   <a href=\"mailto:%s\">mail</a>\n"
-            "  </div>\n",
-            title, email);
+                        "   <a href=\"%s\">%s</a>",
+                        href_expr->string_val, title_expr->string_val);
+}
+
+void evbuffer_add_page_header(struct evbuffer *buffer, list_t *config) {
+    char *title = config_string_at(config->value, "conf.title", "");
+
+    evbuffer_add_printf(buffer,
+                        "<!DOCTYPE html>\n"
+                        "<html>\n"
+                        " <head>\n"
+                        "  <meta charset=\"utf-8\">\n"
+                        "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n"
+                        "  <title>%s</title>\n"
+                        "  <link href=\"/style.css\" rel=\"stylesheet\" type=\"text/css\"/>\n"
+                        " </head>\n"
+                        " <body>\n"
+                        "  <div class=\"navigation\">\n"
+                        "   <a href=\"/\">index</a>\n", title);
+
+    config_iter_list_at(config->value, "conf.links", evbuffer_add_page_header_links, buffer);
+    evbuffer_add_printf(buffer, "  </div>");
 }
 
 void evbuffer_add_page_footer(struct evbuffer *buffer) {
