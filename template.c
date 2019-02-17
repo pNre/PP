@@ -23,7 +23,7 @@ void evbuffer_add_page_header_links(void *ctx, sexpr_t *link) {
 
     evbuffer_add_printf(buffer,
                         "   <a href=\"%s\">%s</a>",
-                        href_expr->string_val, title_expr->string_val);
+                        (char *)href_expr->string_val, (char *)title_expr->string_val);
 }
 
 void evbuffer_add_page_header(struct evbuffer *buffer, list_t *config) {

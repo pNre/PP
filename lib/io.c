@@ -6,7 +6,7 @@ char *read_file(char *pathname, long *length) {
     char *buff;
     long size;
 
-    f = fopen(pathname, "r");
+    f = fopen(pathname, "rb");
     if (!f) {
         return NULL;
     }
@@ -33,7 +33,7 @@ char *read_file(char *pathname, long *length) {
     }
 
     fclose(f);
-        
+
     if (length) {
         *length = size;
      }
